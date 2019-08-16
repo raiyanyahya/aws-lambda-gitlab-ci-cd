@@ -1,0 +1,15 @@
+sites:
+  -
+    job_name: white-shirt-1
+    bucket_name: "aws-lambda-price-grabber"
+    site_url: "https://www.zalando.ch/joop-pierce-slim-fit-businesshemd-white-jo922d05f-a11.html"
+    html_query: "//div[contains(@class, 'h-product-price')]/div/text()"
+    alert_whenever: "-5"
+    difference: "pct"
+  -
+    job_name: white-shirt-2
+    bucket_name: "aws-lambda-price-grabber"
+    site_url: "https://www.zalando.ch/marni-hemd-white-mam22d001-a11.html"
+    html_query: "//div[contains(@class, 'h-product-price')]/div/text()"
+    alert_whenever: "-1"
+    difference: "val"

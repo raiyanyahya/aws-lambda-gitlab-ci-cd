@@ -1,0 +1,35 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Resources": {
+        "grabber": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+                "Code": {
+                    "S3Bucket": "aws-lambda-price-grabber",
+                    "S3Key": "source.zip"
+                },
+                "FunctionName": "grab-price",
+                "Description": "Reading the price off the online shop.",
+                "Handler": "lambda_price_grabber.lambda_handler",
+                "Runtime": "python3.6",
+                "Timeout": 5,
+                "Role": { "Fn::Sub": "arn:aws:iam::${AWS::AccountId}:role/price-grabber-role" }
+            }
+        },
+        "invoker": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+                "Code": {
+                    "S3Bucket": "aws-lambda-price-grabber",
+                    "S3Key": "source.zip"
+                },
+                "FunctionName": "grab-invoke",
+                "Description": "Invokes the price grabber using list from S3 bucket.",
+                "Handler": "lambda_invoke_grabber.lambda_handler",
+                "Runtime": "python3.6",
+                "Timeout": 20,
+                "Role": { "Fn::Sub": "arn:aws:iam::${AWS::AccountId}:role/price-grabber-role" }
+            }
+        }
+    }
+}

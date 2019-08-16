@@ -1,0 +1,5 @@
+lxml
+requests
+boto3
+botocore
+pyyaml

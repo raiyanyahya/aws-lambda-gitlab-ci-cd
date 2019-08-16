@@ -1,0 +1,185 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters": {
+    "S3BucketName": {
+      "Description": "Your S3 bucket needs a unique name, another AWS user cannot have used the name and you can't change it afterwards, so choose the name wisely. Bucket names must be unique across all existing bucket names in Amazon S3.",
+      "Type": "String",
+      "MinLength": "3",
+      "MaxLength": "63"
+    }
+  },
+  "Resources": {
+    "CFNUser": {
+      "Type": "AWS::IAM::User",
+      "Properties": {
+        "UserName": "LambdaUser"
+      }
+    },
+    "CFNUserGroup": {
+      "Type": "AWS::IAM::Group",
+      "Properties": {
+        "GroupName": "LambdaUser-group"
+      }
+    },
+    "CFNUserToGroup": {
+      "Type": "AWS::IAM::UserToGroupAddition",
+      "Properties": {
+        "GroupName": {
+          "Ref": "CFNUserGroup"
+        },
+        "Users": [
+          {
+            "Ref": "CFNUser"
+          }
+        ]
+      }
+    },
+    "CFNRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "RoleName": "LambdaUser-role",
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        }
+      }
+    },
+    "CFNPolicyGrabberFunctions": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "policy-LambdaUserFunction",
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Sid": "VisualEditor0",
+              "Effect": "Allow",
+              "Action": [
+                "s3:PutObject",
+                "s3:GetObject",
+                "lambda:InvokeFunction"
+              ],
+              "Resource": [
+                "arn:aws:s3:::aws-lambda/*",
+                "arn:aws:lambda:eu-west-1:*:function:*"
+              ]
+            },
+            {
+              "Sid": "VisualEditor1",
+              "Effect": "Allow",
+              "Action": [
+                "logs:CreateLogStream",
+                "logs:CreateLogGroup",
+                "logs:PutLogEvents"
+              ],
+              "Resource": "*"
+            },
+            {
+              "Sid": "VisualEditor2",
+              "Effect": "Allow",
+              "Action": "s3:ListBucket",
+              "Resource": "arn:aws:s3:::*"
+            }
+          ]
+        },
+        "Roles": [
+          {
+            "Ref": "CFNRole"
+          }
+        ]
+      }
+    },
+    "CFNPolicyGrabberCloudFormation": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "policy-LambdaUser",
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Sid": "VisualEditor0",
+              "Effect": "Allow",
+              "Action": [
+                "s3:PutObject",
+                "s3:GetObject",
+                "iam:PassRole",
+                "cloudformation:DeleteStack",
+                "s3:DeleteObject"
+              ],
+              "Resource": [
+                "arn:aws:s3:::aws-lambda/*",
+                "arn:aws:cloudformation:eu-west-1:*:stack/*/*",
+                { "Fn::Sub": "arn:aws:iam::${AWS::AccountId}:role/LambdaUser-role" }
+              ]
+            },
+            {
+              "Sid": "VisualEditor1",
+              "Effect": "Allow",
+              "Action": [
+                "lambda:CreateFunction",
+                "cloudformation:CreateUploadBucket",
+                "cloudformation:ListExports",
+                "cloudformation:ListStacks",
+                "cloudformation:ListImports",
+                "lambda:InvokeFunction",
+                "lambda:GetFunction",
+                "lambda:UpdateFunctionConfiguration",
+                "cloudformation:GetTemplateSummary",
+                "lambda:UpdateAlias",
+                "cloudformation:EstimateTemplateCost",
+                "lambda:UpdateFunctionCode",
+                "cloudformation:DescribeAccountLimits",
+                "lambda:PublishVersion",
+                "lambda:DeleteFunction",
+                "cloudformation:ValidateTemplate"
+              ],
+              "Resource": "*"
+            },
+            {
+              "Sid": "VisualEditor2",
+              "Effect": "Allow",
+              "Action": "s3:ListBucket",
+              "Resource": "arn:aws:s3:::aws-lambda"
+            },
+            {
+              "Sid": "VisualEditor3",
+              "Effect": "Allow",
+              "Action": "cloudformation:*",
+              "Resource": [
+                "arn:aws:cloudformation:eu-west-1:*:stack/*/*",
+                "arn:aws:cloudformation:eu-west-1:*:stackset/*:*"
+              ]
+            }
+          ]
+        },
+        "Groups": [
+          {
+            "Ref": "CFNUserGroup"
+          }
+        ]
+      }
+    },
+    "CFNBucket": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": {
+          "Ref": "S3BucketName"
+        },
+        "PublicAccessBlockConfiguration": {
+          "BlockPublicAcls": true,
+          "BlockPublicPolicy": true,
+          "IgnorePublicAcls": true,
+          "RestrictPublicBuckets": true
+        }
+      }
+    }
+  }
+}
