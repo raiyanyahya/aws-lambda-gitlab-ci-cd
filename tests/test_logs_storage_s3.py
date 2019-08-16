@@ -4,7 +4,7 @@ import boto3
 
 
 class TestLogsStorageS3(unittest.TestCase):
-    S3_BUCKET = "aws-lambda-price-grabber"
+    S3_BUCKET = "raiyan-lambda"
     TEST_FILE = "integration-test.txt"
 
     def setUp(self):
