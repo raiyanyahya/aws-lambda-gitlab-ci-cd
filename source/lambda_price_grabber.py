@@ -24,7 +24,7 @@ def assert_required(event):
 if __name__ == '__main__':
     events = {
         "job_name": "test",
-        "site_url": "https://www.zalando.ch/joop-pierce-slim-fit-businesshemd-white-jo922d05f-a11.html",
+        "site_url": "https://www.amazon.com/tshirt.html",
         "html_query": "//div[contains(@class, 'h-product-price')]/div/text()",
         "bucket_name": "aws-lambda-price-grabber"
     }
